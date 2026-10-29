@@ -1,0 +1,3 @@
+db.url=jdbc:mysql://localhost:3307/appdb
+db.user=root
+db.password=tu_clave_aqui
