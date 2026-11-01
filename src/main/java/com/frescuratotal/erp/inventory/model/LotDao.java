@@ -114,4 +114,29 @@ public class LotDao {
             return false;
         }
     }
+
+    public boolean updateQuantity(int lotId, double newQuantity) {
+        String sql = "UPDATE lotes_inventario SET cantidad = ? WHERE id_lote = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setDouble(1, newQuantity);
+            ps.setInt(2, lotId);
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            System.out.println("Error updating quantity: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public Lot findById(int lotId) {
+        for (Lot lot : findAll()) {
+            if (lot.getId() == lotId) {
+                return lot;
+            }
+        }
+        return null;
+    }
 }
