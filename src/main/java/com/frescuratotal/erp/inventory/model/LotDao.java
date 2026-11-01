@@ -4,7 +4,10 @@ import com.frescuratotal.erp.common.db.DatabaseConnection;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class LotDao {
 
@@ -37,5 +40,26 @@ public class LotDao {
             System.out.println("Error inserting lot: " + e.getMessage());
             return false;
         }
+    }
+    public String generateLotNumber() {
+        String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        String prefix = "L-" + today + "-";
+        String sql = "SELECT COUNT(*) FROM lotes_inventario WHERE numero_lote LIKE ?";
+        int count = 0;
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, prefix + "%");
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    count = rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error generating lot number: " + e.getMessage());
+        }
+
+        return prefix + String.format("%04d", count + 1);
     }
 }

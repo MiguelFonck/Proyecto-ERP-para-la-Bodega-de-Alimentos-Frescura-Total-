@@ -7,7 +7,10 @@ import java.time.LocalDate;
 public class Main {
     public static void main(String[] args) {
         Lot lot = new Lot();
-        lot.setLotNumber("L-20261101-0001");
+
+        LotDao dao = new LotDao();                  // Automatizacion de
+        lot.setLotNumber(dao.generateLotNumber());  // el numero de lote
+
         lot.setProductId(1);
         lot.setSupplierId(1);
         lot.setExpiryDate(LocalDate.of(2026, 11, 10));
@@ -19,7 +22,6 @@ public class Main {
         lot.setShelf("05");
         lot.setStatus(LotStatus.AVAILABLE);
 
-        LotDao dao = new LotDao();
         System.out.println(dao.insert(lot) ? "Lot saved!" : "Could not save lot");
     }
 }
