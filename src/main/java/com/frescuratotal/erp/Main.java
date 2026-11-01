@@ -1,15 +1,13 @@
 package com.frescuratotal.erp;
 
-import com.frescuratotal.erp.common.db.DatabaseConnection;
-import java.sql.Connection;
-import java.sql.SQLException;
+import com.frescuratotal.erp.inventory.model.Product;
+import com.frescuratotal.erp.inventory.model.ProductDao;
 
-public class Main   {
+public class Main {
     public static void main(String[] args) {
-        try (Connection conn = DatabaseConnection.getConnection()) {
-            System.out.println("Connected to the database");
-        } catch (SQLException e) {
-            System.out.println("Connection error: " + e.getMessage());
+        ProductDao dao = new ProductDao();
+        for (Product p : dao.findAll()) {
+            System.out.println(p.getId() + " - " + p.getName());
         }
     }
 }
