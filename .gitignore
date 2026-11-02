@@ -1,9 +1,10 @@
 ### Mis ignorados ###
+config.properties
+target/
 .idea/
+*.iml
 out/
-
-src/main/resources/config.properties
-
+dist/
 invoices/
 
 target/
