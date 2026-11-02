@@ -2,6 +2,7 @@ package com.frescuratotal.erp;
 
 import com.frescuratotal.erp.common.util.ConsoleView;
 import com.frescuratotal.erp.inventory.controller.InventoryController;
+import com.frescuratotal.erp.logistics.controller.LogisticsController;
 import com.frescuratotal.erp.sales.controller.SalesController;
 
 public class Main {
@@ -12,6 +13,7 @@ public class Main {
             view.showMessage("\n=== FRESCURA TOTAL ERP ===");
             view.showMessage("1. Inventory");
             view.showMessage("2. Sales");
+            view.showMessage("3. Logistics");
             view.showMessage("0. Exit");
             option = view.askInt("Option: ");
 
@@ -19,6 +21,8 @@ public class Main {
                 new InventoryController().start();
             } else if (option == 2) {
                 new SalesController().start();
+            } else if (option == 3) {
+                new LogisticsController().start();
             }
         }
     }
