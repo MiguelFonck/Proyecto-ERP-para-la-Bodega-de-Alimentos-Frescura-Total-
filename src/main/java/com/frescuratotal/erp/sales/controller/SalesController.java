@@ -12,6 +12,7 @@ import com.frescuratotal.erp.sales.model.SaleItem;
 import com.frescuratotal.erp.sales.service.DiscountService;
 import com.frescuratotal.erp.sales.service.FefoLotSelector;
 import com.frescuratotal.erp.sales.view.SalesView;
+import com.frescuratotal.erp.sales.service.InvoiceGenerator;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -26,6 +27,7 @@ public class SalesController {
     private final SaleDao saleDao = new SaleDao();
     private final FefoLotSelector fefoSelector = new FefoLotSelector();
     private final DiscountService discountService = new DiscountService();
+    private final InvoiceGenerator invoiceGenerator = new InvoiceGenerator();
 
     public void start() {
         // Simulates the daily process: refresh lot statuses before selling
@@ -179,6 +181,12 @@ public class SalesController {
         int saleId = saleDao.save(sale, items);
         if (saleId > 0) {
             view.showMessage("Sale saved: " + sale.saleNumber() + ". Stock updated.");
+            String path = invoiceGenerator.generate(saleId, sale, customer, items);
+            if (path != null) {
+                view.showMessage("Invoice created: " + path);
+            } else {
+                view.showMessage("The sale was saved, but the invoice could not be created.");
+            }
         } else {
             view.showMessage("Could not save the sale. Nothing was changed.");
         }

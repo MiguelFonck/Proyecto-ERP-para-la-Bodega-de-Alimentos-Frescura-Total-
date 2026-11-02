@@ -4,6 +4,8 @@ out/
 
 src/main/resources/config.properties
 
+invoices/
+
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
