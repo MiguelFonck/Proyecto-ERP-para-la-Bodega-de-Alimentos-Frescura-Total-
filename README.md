@@ -13,7 +13,7 @@ Módulos:
 
 ## Autores
 
-- <<Nombre completo de Miguel>> (GitHub: <<tu usuario>>)
+- <<Miguel Angel Fonceca Rojas>> (GitHub: <<MiguelFonck >>)
 
 ## Requisitos previos
 
