@@ -139,4 +139,43 @@ public class LotDao {
         }
         return null;
     }
+
+    public List<Lot> findSellableByProduct(int productId) {
+        List<Lot> lots = new ArrayList<>();
+        String sql = "SELECT id_lote, numero_lote, id_producto, id_proveedor, "
+                + "fecha_ingreso, fecha_vencimiento, cantidad_inicial, cantidad, "
+                + "precio_compra, precio_venta, pasillo, estante, id_estado "
+                + "FROM lotes_inventario "
+                + "WHERE id_producto = ? AND id_estado IN (1, 2) AND cantidad > 0 "
+                + "AND fecha_vencimiento >= CURDATE() "
+                + "ORDER BY fecha_vencimiento ASC, id_lote ASC";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, productId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Lot lot = new Lot();
+                    lot.setId(rs.getInt("id_lote"));
+                    lot.setLotNumber(rs.getString("numero_lote"));
+                    lot.setProductId(rs.getInt("id_producto"));
+                    lot.setSupplierId(rs.getInt("id_proveedor"));
+                    lot.setEntryDate(rs.getTimestamp("fecha_ingreso").toLocalDateTime());
+                    lot.setExpiryDate(rs.getDate("fecha_vencimiento").toLocalDate());
+                    lot.setInitialQuantity(rs.getDouble("cantidad_inicial"));
+                    lot.setQuantity(rs.getDouble("cantidad"));
+                    lot.setPurchasePrice(rs.getDouble("precio_compra"));
+                    lot.setSalePrice(rs.getDouble("precio_venta"));
+                    lot.setAisle(rs.getString("pasillo"));
+                    lot.setShelf(rs.getString("estante"));
+                    lot.setStatus(LotStatus.fromDbId(rs.getInt("id_estado")));
+                    lots.add(lot);
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error reading sellable lots: " + e.getMessage());
+        }
+        return lots;
+    }
 }
