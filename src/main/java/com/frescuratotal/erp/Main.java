@@ -1,5 +1,6 @@
 package com.frescuratotal.erp;
 
+import com.frescuratotal.erp.common.util.AppLogger;
 import com.frescuratotal.erp.common.util.ConsoleView;
 import com.frescuratotal.erp.inventory.controller.InventoryController;
 import com.frescuratotal.erp.inventory.controller.TraceabilityController;
@@ -9,6 +10,7 @@ import com.frescuratotal.erp.suppliers.controller.SupplierController;
 
 public class Main {
     public static void main(String[] args) {
+        AppLogger.info("Application started");
         ConsoleView view = new ConsoleView();
         int option = -1;
         while (option != 0) {
@@ -33,5 +35,6 @@ public class Main {
                 new TraceabilityController().start();
             }
         }
+        AppLogger.info("Application closed");
     }
 }

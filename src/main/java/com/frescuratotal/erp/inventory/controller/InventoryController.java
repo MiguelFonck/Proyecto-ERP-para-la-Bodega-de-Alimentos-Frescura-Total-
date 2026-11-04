@@ -1,5 +1,6 @@
 package com.frescuratotal.erp.inventory.controller;
 
+import com.frescuratotal.erp.common.util.AppLogger;
 import com.frescuratotal.erp.inventory.model.*;
 import com.frescuratotal.erp.inventory.service.ExpiryCheckService;
 import com.frescuratotal.erp.inventory.view.InventoryView;
@@ -39,6 +40,7 @@ public class InventoryController {
 
         if (lotDao.insert(lot)) {
             view.showMessage("Lot saved with number: " + lot.getLotNumber());
+            AppLogger.info("Lot received: " + lot.getLotNumber());
         } else {
             view.showMessage("Could not save the lot.");
         }
@@ -53,6 +55,7 @@ public class InventoryController {
         if (lotDao.updateStatus(lotId, LotStatus.IN_QUARANTINE)) {
             quarantineDao.insert(lotId, reason, username);
             view.showMessage("Lot " + lotId + " is now in quarantine.");
+            AppLogger.info("Lot " + lotId + " put in quarantine");
         } else {
             view.showMessage("Lot not found.");
         }
@@ -77,6 +80,7 @@ public class InventoryController {
         shrinkageDao.insert(lotId, quantity, reason, username);
         lotDao.updateQuantity(lotId, lot.getQuantity() - quantity);
         view.showMessage("Shrinkage registered.");
+        AppLogger.info("Shrinkage registered");
     }
 
     public void inspectLot() {
@@ -96,6 +100,7 @@ public class InventoryController {
             quarantineDao.markResolved(lotId, notes);
             lotDao.updateStatus(lotId, LotStatus.AVAILABLE);
             view.showMessage("Lot approved. It is AVAILABLE again.");
+            AppLogger.info("Lot approved after inspection");
         } else if (decision == 2) {
             inspectionDao.insert(lotId, "Rechazado", inspector, notes, notes);
             shrinkageDao.insert(lotId, lot.getQuantity(), "Rejected in inspection: " + notes, inspector);
@@ -103,6 +108,7 @@ public class InventoryController {
             lotDao.updateQuantity(lotId, 0);
             lotDao.updateStatus(lotId, LotStatus.EXPIRED);
             view.showMessage("Lot rejected. Registered as shrinkage and blocked.");
+            AppLogger.info("Lot rejected after inspection");
         } else {
             view.showMessage("Invalid option.");
         }

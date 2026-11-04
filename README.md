@@ -100,6 +100,18 @@ Cada módulo sigue la estructura **MVC por componentes**: `model` (datos y acces
 - **L, sustitución de Liskov:** `InventoryView`, `SalesView`, `LogisticsView` y `SupplierView` extienden `ConsoleView` y pueden usarse donde se espera una `ConsoleView`.
 - **D, inversión de dependencias (parcial):** los controladores dependen de los DAO y de servicios, no del SQL. Como mejora futura, los DAO podrían exponerse mediante interfaces.
 
+## Registro de eventos (logs)
+
+El sistema escribe un archivo de log en `logs/erp.log` (la carpeta se crea sola). Cada línea tiene fecha, nivel (`INFO` o `ERROR`) y el mensaje. Se registran el inicio y cierre de la aplicación, los lotes recibidos, en cuarentena, inspeccionados y las mermas, las ventas y facturas, las rutas de entrega y todos los errores de base de datos. La clase responsable es `AppLogger` (`common/util`).
+
+## Lambdas y Stream API
+
+Se usan expresiones lambda y streams en varios puntos:
+
+- `SupplierController`: búsqueda de proveedores con `filter`, `sorted` y `toList`; suma de compras con `mapToDouble(...).sum()`; total por producto con `Collectors.groupingBy` y `summingDouble`; listados con `forEach`.
+- `TraceabilityController`: total vendido de un lote con `mapToDouble(LotSale::quantity).sum()`.
+- `LogisticsController`: validación de ventas, vehículos y conductores con `anyMatch`.
+
 ## Decisiones de diseño
 
 - Un lote **rechazado en inspección** queda en estado Vencido con cantidad 0 y se registra una merma por toda su cantidad, para conservar el historial.

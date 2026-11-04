@@ -1,5 +1,6 @@
 package com.frescuratotal.erp.sales.controller;
 
+import com.frescuratotal.erp.common.util.AppLogger;
 import com.frescuratotal.erp.inventory.model.Product;
 import com.frescuratotal.erp.inventory.model.ProductDao;
 import com.frescuratotal.erp.inventory.service.ExpiryCheckService;
@@ -171,6 +172,7 @@ public class SalesController {
         int confirm = view.askInt("Confirm sale? (1 = yes, 2 = no): ");
         if (confirm != 1) {
             view.showMessage("Sale cancelled.");
+            AppLogger.info("Sale cancelled by the user");
             return;
         }
 
@@ -181,9 +183,11 @@ public class SalesController {
         int saleId = saleDao.save(sale, items);
         if (saleId > 0) {
             view.showMessage("Sale saved: " + sale.saleNumber() + ". Stock updated.");
+            AppLogger.info("Sale saved: " + sale.saleNumber());
             String path = invoiceGenerator.generate(saleId, sale, customer, items);
             if (path != null) {
                 view.showMessage("Invoice created: " + path);
+                AppLogger.info("Invoice created: " + path);
             } else {
                 view.showMessage("The sale was saved, but the invoice could not be created.");
             }

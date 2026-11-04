@@ -1,5 +1,6 @@
 package com.frescuratotal.erp.inventory.controller;
 
+import com.frescuratotal.erp.common.util.AppLogger;
 import com.frescuratotal.erp.inventory.model.LotSale;
 import com.frescuratotal.erp.inventory.model.LotTrace;
 import com.frescuratotal.erp.inventory.model.TraceabilityDao;
@@ -29,6 +30,7 @@ public class TraceabilityController {
             view.showMessage("Lot not found.");
             return;
         }
+        AppLogger.info("Lot traced: " + lot.lotNumber());
 
         view.showMessage("--- Origin ---");
         view.showMessage("Lot: " + lot.lotNumber() + " (id " + lot.lotId() + ")");
@@ -49,12 +51,13 @@ public class TraceabilityController {
             view.showMessage("This lot has not been sold yet.");
             return;
         }
-        double totalSold = 0;
-        for (LotSale s : sales) {
-            view.showMessage(s.saleNumber() + " | " + s.saleDate() + " | " + s.customerName()
-                    + " | qty " + s.quantity());
-            totalSold += s.quantity();
-        }
+        sales.forEach(s -> view.showMessage(s.saleNumber() + " | " + s.saleDate() + " | "
+                + s.customerName() + " | qty " + s.quantity()));
+
+        // Stream: add up the quantity sold from this lot
+        double totalSold = sales.stream()
+                .mapToDouble(LotSale::quantity)
+                .sum();
         view.showMessage("Total sold from this lot: " + totalSold);
     }
 }

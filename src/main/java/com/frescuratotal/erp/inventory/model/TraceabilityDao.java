@@ -56,7 +56,7 @@ public class TraceabilityDao {
                 + "FROM detalles_venta d "
                 + "JOIN ventas v ON v.id_venta = d.id_venta "
                 + "JOIN clientes c ON c.id_cliente = v.id_cliente "
-                + "WHERE d.id_lote = ? ORDER BY v.fecha_venta DESC";
+                + "WHERE d.id_lote = ? AND v.id_estado <> 5 ORDER BY v.fecha_venta DESC";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
