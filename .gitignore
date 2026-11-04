@@ -6,6 +6,7 @@ target/
 out/
 dist/
 invoices/
+logs/
 
 target/
 !.mvn/wrapper/maven-wrapper.jar

@@ -6,6 +6,7 @@ import com.frescuratotal.erp.logistics.model.DispatchOrder;
 import com.frescuratotal.erp.logistics.model.Driver;
 import com.frescuratotal.erp.logistics.model.Vehicle;
 import com.frescuratotal.erp.logistics.view.LogisticsView;
+import com.frescuratotal.erp.common.util.AppLogger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +55,7 @@ public class LogisticsController {
         }
         if (deliveryDao.sendToPreparation(saleId)) {
             view.showMessage("Sale " + saleId + " is now In Preparation.");
+            AppLogger.info("Sale " + saleId + " sent to preparation");
         } else {
             view.showMessage("Sale not found or it is not in Registered status.");
         }
@@ -109,12 +111,7 @@ public class LogisticsController {
             view.showMessage(v.id() + " - " + v.plate() + " | " + v.model() + " | capacity " + v.capacity());
         }
         int vehicleId = view.askInt("Vehicle id: ");
-        boolean vehicleFound = false;
-        for (Vehicle v : vehicles) {
-            if (v.id() == vehicleId) {
-                vehicleFound = true;
-            }
-        }
+        boolean vehicleFound = vehicles.stream().anyMatch(v -> v.id() == vehicleId);
         if (!vehicleFound) {
             view.showMessage("That vehicle is not available.");
             return;
@@ -131,12 +128,7 @@ public class LogisticsController {
             view.showMessage(d.id() + " - " + d.name() + " | license " + d.license());
         }
         int driverId = view.askInt("Driver id: ");
-        boolean driverFound = false;
-        for (Driver d : drivers) {
-            if (d.id() == driverId) {
-                driverFound = true;
-            }
-        }
+        boolean driverFound = drivers.stream().anyMatch(d -> d.id() == driverId);
         if (!driverFound) {
             view.showMessage("That driver is not available.");
             return;
@@ -148,6 +140,7 @@ public class LogisticsController {
         int routeId = deliveryDao.createRoute(routeName, username, vehicleId, driverId, chosen);
         if (routeId > 0) {
             view.showMessage("Route " + routeId + " created with " + chosen.size() + " sale(s).");
+            AppLogger.info("Route " + routeId + " created with " + chosen.size() + " sale(s)");
         } else {
             view.showMessage("Could not create the route. Nothing was changed.");
         }
@@ -166,6 +159,7 @@ public class LogisticsController {
         }
         if (deliveryDao.startRoute(routeId)) {
             view.showMessage("Route " + routeId + " is now In Transit. Its sales are In Transit.");
+            AppLogger.info("Route " + routeId + " started");
         } else {
             view.showMessage("Route not found or it is not planned.");
         }
@@ -185,6 +179,7 @@ public class LogisticsController {
         String receivedBy = view.askText("Received by: ");
         if (deliveryDao.completeRoute(routeId, receivedBy)) {
             view.showMessage("Route " + routeId + " completed. Its sales are Delivered.");
+            AppLogger.info("Route " + routeId + " completed, received by " + receivedBy);
         } else {
             view.showMessage("Route not found or it is not in transit.");
         }
@@ -205,11 +200,6 @@ public class LogisticsController {
     }
 
     private boolean orderIsInList(List<DispatchOrder> orders, int saleId) {
-        for (DispatchOrder o : orders) {
-            if (o.saleId() == saleId) {
-                return true;
-            }
-        }
-        return false;
+        return orders.stream().anyMatch(o -> o.saleId() == saleId);
     }
 }
