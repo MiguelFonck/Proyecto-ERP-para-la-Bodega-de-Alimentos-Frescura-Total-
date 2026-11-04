@@ -118,4 +118,3 @@ Se usan expresiones lambda y streams en varios puntos:
 - Las ventas solo toman lotes **Disponibles** o **Próximos a vencer**. Los lotes en cuarentena o vencidos se omiten.
 - Las transacciones (`commit` y `rollback`) protegen la venta (con el descuento de stock) y los cambios de estado de las rutas.
 - La factura electrónica es una **simulación**: el CUFE es un hash SHA-384 y el QR apunta a una URL de consulta de ejemplo.
-- Los datos de ejemplo fueron generados con IA. Según el enunciado, el proveedor con id 33 tiene el NIT `SYN-FT-900427-AG`.
