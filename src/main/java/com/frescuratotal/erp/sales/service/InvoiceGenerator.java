@@ -2,6 +2,7 @@ package com.frescuratotal.erp.sales.service;
 
 import com.frescuratotal.erp.sales.model.Company;
 import com.frescuratotal.erp.sales.model.Customer;
+import com.frescuratotal.erp.sales.model.Invoice;
 import com.frescuratotal.erp.sales.model.InvoiceDao;
 import com.frescuratotal.erp.sales.model.Sale;
 import com.frescuratotal.erp.sales.model.SaleItem;
@@ -47,14 +48,38 @@ public class InvoiceGenerator {
             return null;
         }
 
-        BufferedImage image = draw(company, sale, customer, items, invoiceNumber, cufe, qrLink);
+        BufferedImage image = draw(company, sale, customer, items, invoiceNumber, cufe, qrLink, LocalDateTime.now());
+        return save(image, invoiceNumber);
+    }
 
+    // Draws again the PNG of a sale that already exists in the database (for example, the
+    // sample sales loaded by database.sql, or any sale after cloning the project).
+    // If the sale has no invoice yet, it is created. Returns the file path, or null if it failed.
+    public String reprint(int saleId, Sale sale, Customer customer, List<SaleItem> items) {
+        Invoice invoice = invoiceDao.findBySaleId(saleId);
+        if (invoice == null) {
+            return generate(saleId, sale, customer, items);
+        }
+
+        Company company = invoiceDao.findCompany();
+        if (company == null) {
+            return null;
+        }
+
+        LocalDateTime issuedAt = invoice.issuedAt() != null ? invoice.issuedAt() : LocalDateTime.now();
+        BufferedImage image = draw(company, sale, customer, items,
+                invoice.invoiceNumber(), invoice.cufe(), invoice.qrLink(), issuedAt);
+        return save(image, invoice.invoiceNumber());
+    }
+
+    // Writes the PNG inside the invoices folder (the folder is created if it does not exist)
+    private String save(BufferedImage image, String invoiceNumber) {
         File folder = new File(OUTPUT_FOLDER);
         folder.mkdirs();
         File file = new File(folder, invoiceNumber + ".png");
         try {
             ImageIO.write(image, "png", file);
-            return file.getPath();
+            return file.getAbsolutePath();
         } catch (IOException e) {
             System.out.println("Error writing invoice image: " + e.getMessage());
             return null;
@@ -77,7 +102,7 @@ public class InvoiceGenerator {
     }
 
     private BufferedImage draw(Company company, Sale sale, Customer customer, List<SaleItem> items,
-                               String invoiceNumber, String cufe, String qrLink) {
+                               String invoiceNumber, String cufe, String qrLink, LocalDateTime issuedAt) {
         int width = 850;
         int height = 720 + items.size() * 26;
 
@@ -105,7 +130,7 @@ public class InvoiceGenerator {
         g.setFont(normal);
         g.drawString("No. " + invoiceNumber, 520, 74);
         g.drawString("Sale: " + sale.saleNumber(), 520, 96);
-        String date = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+        String date = issuedAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
         g.drawString("Date: " + date, 520, 118);
 
         g.drawLine(40, 140, width - 40, 140);

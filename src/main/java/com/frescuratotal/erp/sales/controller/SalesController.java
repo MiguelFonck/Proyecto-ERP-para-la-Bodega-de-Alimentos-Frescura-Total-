@@ -41,6 +41,7 @@ public class SalesController {
             view.showMessage("2. Register customer");
             view.showMessage("3. List customers");
             view.showMessage("4. List products with stock");
+            view.showMessage("5. Print invoice of an existing sale");
             view.showMessage("0. Back");
             option = view.askInt("Option: ");
 
@@ -52,11 +53,37 @@ public class SalesController {
                 listCustomers();
             } else if (option == 4) {
                 listProducts();
+            } else if (option == 5) {
+                printInvoice();
             }
         }
     }
 
-    private void listCustomers() {
+    // Creates (again) the invoice PNG of a sale that is already saved in the database
+    private void printInvoice() {
+        int saleId = view.askInt("Sale id: ");
+        Sale sale = saleDao.findById(saleId);
+        if (sale == null) {
+            view.showMessage("Sale not found.");
+            return;
+        }
+        Customer customer = customerDao.findById(sale.customerId());
+        List<SaleItem> items = saleDao.findItems(saleId);
+        if (customer == null || items.isEmpty()) {
+            view.showMessage("The sale has no customer or no products. Cannot print the invoice.");
+            return;
+        }
+
+        String path = invoiceGenerator.reprint(saleId, sale, customer, items);
+        if (path != null) {
+            view.showMessage("Invoice created: " + path);
+            AppLogger.info("Invoice printed: " + path);
+        } else {
+            view.showMessage("The invoice could not be created.");
+        }
+    }
+
+        private void listCustomers() {
         for (Customer c : customerDao.findAll()) {
             view.showMessage(c.id() + " - " + c.name() + " (" + c.typeName() + ")");
         }

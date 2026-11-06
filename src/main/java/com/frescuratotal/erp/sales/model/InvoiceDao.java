@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 
 public class InvoiceDao {
 
@@ -54,5 +55,29 @@ public class InvoiceDao {
             System.out.println("Error saving invoice: " + e.getMessage());
             return false;
         }
+    }
+
+    // Finds the invoice already saved for a sale, or null if the sale has no invoice
+    public Invoice findBySaleId(int saleId) {
+        String sql = "SELECT numero_factura, cufe, enlace_qr, fecha_emision FROM facturas WHERE id_venta = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, saleId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Timestamp issued = rs.getTimestamp("fecha_emision");
+                    return new Invoice(
+                            rs.getString("numero_factura"),
+                            rs.getString("cufe"),
+                            rs.getString("enlace_qr"),
+                            issued != null ? issued.toLocalDateTime() : null);
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error reading invoice: " + e.getMessage());
+        }
+        return null;
     }
 }
